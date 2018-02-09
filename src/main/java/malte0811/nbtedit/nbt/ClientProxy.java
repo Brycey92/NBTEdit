@@ -18,6 +18,7 @@ public class ClientProxy extends CommonProxy {
 	private Set<AutoPullConfig> autoPulls = Collections.newSetFromMap(new ConcurrentHashMap<>());
 	private Map<EditPosKey, NBTTagCompound> cache = new ConcurrentHashMap<>();
 	private Set<EditPosKey> unread = new HashSet<>();
+	
 	@Override
 	public NBTTagCompound getNBT(EditPosKey k, boolean sync) {
 		if (sync) {
@@ -26,7 +27,7 @@ public class ClientProxy extends CommonProxy {
 			NBTEdit.packetHandler.sendToServer(new MessageRequestNBT(k));
 			try {
 				synchronized (this) {
-					while (!unread.contains(k)&&Minecraft.getMinecraft().world!=null) {
+					while (!unread.contains(k) && Minecraft.getMinecraft().world!=null) {
 						wait(1000);
 					}
 				}
@@ -40,28 +41,32 @@ public class ClientProxy extends CommonProxy {
 			return cache.get(k);
 		}
 	}
+	
 	@Override
 	public void setNBT(EditPosKey k, NBTTagCompound newNbt) {
 		NBTEdit.packetHandler.sendToServer(new MessagePushNBT(k, newNbt));
 	}
+	
 	@Override
 	public void cache(EditPosKey pos, NBTTagCompound nbt) {
-		if (nbt!=null) {
+		if (nbt != null) {
 			cache.put(pos, nbt);
 		} else {
 			cache.remove(pos);
 		}
 		unread.add(pos);
 	}
+	
 	@Override
 	public void syncNBT(EditPosKey pos, NBTTagCompound nbt) {
 		World w = Minecraft.getMinecraft().world;
 		TileEntity te = w.getTileEntity(pos.tPos);
-		if (te!=null) {
+		if (te != null) {
 			te.readFromNBT(nbt);
 			w.markBlockRangeForRenderUpdate(pos.tPos, pos.tPos);
 		}
 	}
+	
 	@Override
 	public Set<AutoPullConfig> getAutoPulls() {
 		return autoPulls;

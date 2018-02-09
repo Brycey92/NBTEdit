@@ -27,9 +27,9 @@ public final class Utils {
 		Vec3d Vec3d3 = null;
 		float f = 1.0F;
 		List<Entity> list = entity.world.getEntitiesInAABBexcluding(entity,
-				entity.getEntityBoundingBox().addCoord(lookVec.xCoord * d0, lookVec.yCoord * d0, lookVec.zCoord * d0)
+				entity.getEntityBoundingBox().offset(lookVec.xCoord * d0, lookVec.yCoord * d0, lookVec.zCoord * d0)
 						.expand((double) f, (double) f, (double) f),
-				Predicates.and(EntitySelectors.NOT_SPECTATING, (e)->(e.canBeCollidedWith())));
+				Predicates.and(EntitySelectors.NOT_SPECTATING, (e) -> (e.canBeCollidedWith())));
 		double d2 = d1;
 
 		for (int j = 0; j < list.size(); ++j) {

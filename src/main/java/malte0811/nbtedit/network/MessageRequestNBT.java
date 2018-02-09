@@ -6,7 +6,6 @@ import io.netty.buffer.ByteBuf;
 import malte0811.nbtedit.NBTEdit;
 import malte0811.nbtedit.nbt.EditPosKey;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraftforge.fml.common.FMLLog;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
@@ -18,7 +17,9 @@ public class MessageRequestNBT implements IMessage {
 		pos = e;
 	}
 	
-	public MessageRequestNBT() {}
+	public MessageRequestNBT() {
+	}
+	
 	@Override
 	public void fromBytes(ByteBuf buf) {
 		pos = EditPosKey.fromBytes(buf);
@@ -28,16 +29,15 @@ public class MessageRequestNBT implements IMessage {
 	public void toBytes(ByteBuf buf) {
 		pos.toBytes(buf);
 	}
-	public static class ServerHandler implements IMessageHandler<MessageRequestNBT, IMessage>
-	{
+	
+	public static class ServerHandler implements IMessageHandler<MessageRequestNBT, IMessage> {
 		@Override
-		public IMessage onMessage(MessageRequestNBT msg, MessageContext ctx)
-		{
+		public IMessage onMessage(MessageRequestNBT msg, MessageContext ctx) {
 			if (NBTEdit.editNbt.checkPermission(ctx.getServerHandler().player.mcServer, ctx.getServerHandler().player)) {
 				NBTTagCompound val = NBTEdit.commonProxyInstance.getNBT(msg.pos, false);
 				return new MessageNBTSync(msg.pos, val, true);
 			}
-			FMLLog.log(NBTEdit.MODID, Level.ERROR, "Player "+ctx.getServerHandler().player.getDisplayNameString()+" tried to request NBT data from the server but isn't permitted to do so!");
+			NBTEdit.logger.error(NBTEdit.MODID, Level.ERROR, "Player " + ctx.getServerHandler().player.getDisplayNameString() + " tried to request NBT data from the server but isn't permitted to do so!");
 			return null;
 		}
 	}
